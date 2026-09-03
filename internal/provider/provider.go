@@ -13,6 +13,7 @@ import (
 
 	"github.com/Monitrs/terraform-provider-monitrs/internal/api"
 	"github.com/Monitrs/terraform-provider-monitrs/internal/resources/endpoint"
+	status_page "github.com/Monitrs/terraform-provider-monitrs/internal/resources/status_page"
 )
 
 // Registry: registry.terraform.io/Monitrs/monitrs
@@ -96,6 +97,8 @@ func (p *monitrsProvider) Configure(ctx context.Context, req provider.ConfigureR
 func (p *monitrsProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		endpoint.New,
+		status_page.NewStatusPage,
+		status_page.NewAttachment,
 	}
 }
 
