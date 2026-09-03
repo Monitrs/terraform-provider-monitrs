@@ -12,6 +12,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/Monitrs/terraform-provider-monitrs/internal/api"
+	dsEndpoint "github.com/Monitrs/terraform-provider-monitrs/internal/datasources/endpoint"
+	dsEndpoints "github.com/Monitrs/terraform-provider-monitrs/internal/datasources/endpoints"
+	dsMe "github.com/Monitrs/terraform-provider-monitrs/internal/datasources/me"
 	"github.com/Monitrs/terraform-provider-monitrs/internal/resources/alert_channel"
 	"github.com/Monitrs/terraform-provider-monitrs/internal/resources/endpoint"
 	status_page "github.com/Monitrs/terraform-provider-monitrs/internal/resources/status_page"
@@ -107,6 +110,8 @@ func (p *monitrsProvider) Resources(_ context.Context) []func() resource.Resourc
 // DataSources returns the list of data source constructors. Wire each T5 data source here.
 func (p *monitrsProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		// Filled in by T5.
+		dsEndpoint.New,
+		dsEndpoints.New,
+		dsMe.New,
 	}
 }
