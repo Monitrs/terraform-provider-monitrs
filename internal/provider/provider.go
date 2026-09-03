@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/Monitrs/terraform-provider-monitrs/internal/api"
+	"github.com/Monitrs/terraform-provider-monitrs/internal/resources/alert_channel"
 	"github.com/Monitrs/terraform-provider-monitrs/internal/resources/endpoint"
 	status_page "github.com/Monitrs/terraform-provider-monitrs/internal/resources/status_page"
 )
@@ -99,6 +100,7 @@ func (p *monitrsProvider) Resources(_ context.Context) []func() resource.Resourc
 		endpoint.New,
 		status_page.NewStatusPage,
 		status_page.NewAttachment,
+		alert_channel.New,
 	}
 }
 
