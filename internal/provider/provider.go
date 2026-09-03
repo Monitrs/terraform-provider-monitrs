@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/Monitrs/terraform-provider-monitrs/internal/api"
+	"github.com/Monitrs/terraform-provider-monitrs/internal/resources/endpoint"
 )
 
 // Registry: registry.terraform.io/Monitrs/monitrs
@@ -94,7 +95,7 @@ func (p *monitrsProvider) Configure(ctx context.Context, req provider.ConfigureR
 // Resources returns the list of resource type constructors. Wire each T2-T4 resource here.
 func (p *monitrsProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		// Filled in by T2, T3, T4.
+		endpoint.New,
 	}
 }
 
