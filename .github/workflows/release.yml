@@ -1,0 +1,54 @@
+# Terraform Registry release build.
+#
+# PUBLISHING.md's per-release flow assumes this workflow exists ("GoReleaser
+# workflow auto-builds signed zips ... and publishes to the release"). It did
+# not, so a tag would have produced an empty GitHub Release and the Registry
+# would have had nothing to import. Added 2026-09-27.
+#
+# The Registry requires each release to carry: a signed SHA256SUMS file, a
+# detached .sig for it, the registry manifest, and one zip per os/arch. All of
+# that comes from .goreleaser.yml — this workflow's only jobs are to import the
+# signing key and hand GoReleaser the fingerprint it expects in GPG_FINGERPRINT.
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  # GoReleaser uploads the built artifacts onto the GitHub Release.
+  contents: write
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          # Single source of truth for the toolchain version.
+          go-version-file: 'go.mod'
+          cache: true
+
+      - id: import_gpg
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          # Empty when the key was generated with %no-protection, which is
+          # what PUBLISHING.md's step 2 does.
+          passphrase: ${{ secrets.PASSPHRASE }}
+
+      - uses: goreleaser/goreleaser-action@v6
+        with:
+          # .goreleaser.yml is v1 syntax (no `version: 2` key), so pin the v1
+          # line. Letting this float to v2 fails the build on config parsing.
+          version: '~> v1'
+          args: release --clean
+        env:
+          # .goreleaser.yml's signs block reads this to pick the signing key.
+          # It must match the fingerprint registered with the Terraform
+          # Registry, or signature verification fails at import time.
+          GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

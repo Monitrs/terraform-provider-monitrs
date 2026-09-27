@@ -65,6 +65,10 @@ git tag v0.1.0
 git push --tags
 
 # Create a GitHub Release from the tag (mark as pre-release for v0.x)
+# The workflow is .github/workflows/release.yml in this directory, so the
+# subtree split in step 1 carries it into the extracted repo. It fires on
+# tags matching v*, imports the signing key, and passes its fingerprint to
+# GoReleaser as GPG_FINGERPRINT.
 # GoReleaser workflow auto-builds signed zips for 11 os/arch combos + publishes
 # to the release. The Registry polls the repo every ~10 minutes and imports
 # new releases automatically.

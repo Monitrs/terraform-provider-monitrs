@@ -1,0 +1,21 @@
+# The locally-built provider binary. ~22 MB, rebuilt by `go build` and by
+# `make`, and it lives at the repo root because the binary name must match
+# the repo name for Terraform's local-plugin discovery. Without this rule a
+# stray `git add .` commits it — which matters more once this tree is
+# extracted into its own repo, where the root is the provider.
+terraform-provider-monitrs
+
+# GoReleaser output.
+dist/
+
+# Local Terraform state from manual acceptance runs against examples/.
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+crash.log
+
+# The exported signing key, if anyone follows PUBLISHING.md step 2 in-tree.
+# The private key belongs in /root/.secrets, never in the repo.
+*.asc
+*.gpg
