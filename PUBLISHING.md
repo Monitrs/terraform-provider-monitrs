@@ -44,11 +44,29 @@ gpg --armor --export <FINGERPRINT> > monitrs-tf-provider-public.asc
 
 ### 3. Register on the Registry
 
-1. Go to https://registry.terraform.io/publish/provider
-2. Sign in with your GitHub org (Monitrs)
-3. Select the `terraform-provider-monitrs` repo
-4. Paste the ASCII-armored public key from step 2
-5. Confirm
+There is **no terraform.io or HCP account to create** — the Registry
+authenticates with GitHub OAuth only. Per HashiCorp's guide: *"Before
+publishing a provider, you must first sign in to the Terraform Registry with a
+GitHub account."*
+
+1. Go to https://registry.terraform.io and **Sign in with GitHub**, authorising
+   the Terraform Registry OAuth app.
+   Sign in as your GitHub **user** (e.g. `Zenofex`), not as the org. The
+   account needs **admin** on the provider repo — org ownership alone is not
+   what the Registry checks. Verify under GitHub Settings → Applications →
+   Authorized OAuth Apps → Terraform Registry.
+2. Register the signing key under **User Settings → Signing Keys**, pasting the
+   ASCII-armored public key from step 2 above. Depending on the flow the
+   publish wizard may also offer to take it inline; it is the same key either
+   way, and it must match `GPG_FINGERPRINT` in the release workflow or imports
+   fail signature verification.
+3. Go to https://registry.terraform.io/publish/provider, select
+   `terraform-provider-monitrs`, and confirm.
+
+Registry prerequisites, all of which this repo already satisfies: a public repo
+named `terraform-provider-{name}` in lowercase; `docs/` with an overview plus a
+page per resource and data source; a GitHub release on a `vX.Y.Z` tag; and a
+registered GPG public key.
 
 ### 4. Add secrets to the GitHub repo
 
