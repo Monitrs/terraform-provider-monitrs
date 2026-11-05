@@ -17,7 +17,18 @@ Scope it with least privilege — the provider only needs `write:endpoints`,
 ## Example Usage
 
 ```terraform
-{{tffile "examples/provider/provider.tf"}}
+terraform {
+  required_providers {
+    monitrs = {
+      source  = "Monitrs/monitrs"
+      version = "~> 0.1"
+    }
+  }
+}
+
+provider "monitrs" {
+  # api_key = "mrs_live_..." — or set MONITRS_API_KEY
+}
 ```
 
 ## Schema

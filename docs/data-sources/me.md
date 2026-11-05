@@ -13,7 +13,15 @@ mechanism. Useful for asserting the provider is authenticated correctly.
 ## Example Usage
 
 ```terraform
-{{tffile "examples/data-sources/monitrs_me/data-source.tf"}}
+data "monitrs_me" "self" {}
+
+output "my_email" {
+  value = data.monitrs_me.self.email
+}
+
+output "my_tier" {
+  value = data.monitrs_me.self.tier
+}
 ```
 
 ## Schema
