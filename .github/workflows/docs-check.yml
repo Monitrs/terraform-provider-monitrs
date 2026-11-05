@@ -1,0 +1,73 @@
+# Guards what the Terraform Registry publishes.
+#
+# The Registry stores docs/ verbatim, per release, so a mistake there is
+# visible on the provider's public listing until the next version ships.
+# Five of eight pages carried an unexpanded `{{tffile "..."}}` directive
+# from 2026-09-27 until 2026-11-05 — a tfplugindocs template directive
+# that only expands when docs are generated from templates/, which this
+# repo does not have. Visitors read the literal string where the Example
+# Usage block should have been.
+#
+# A grep would have caught it on day one. This is that grep.
+name: Docs check
+on:
+  pull_request:
+    paths:
+      - 'docs/**'
+      - 'examples/**'
+      - '.github/workflows/docs-check.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'examples/**'
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  registry-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: No unexpanded template directives, and every example resolves
+        run: |
+          python3 - <<'PY'
+          import pathlib, re, sys
+
+          docs = sorted(pathlib.Path("docs").rglob("*.md"))
+          if not docs:
+              sys.exit("docs/ contains no markdown — refusing to report a vacuous pass")
+
+          # tfplugindocs directives. Anything matching reaches the Registry
+          # as literal text, because nothing expands it after this point.
+          directive = re.compile(r"\{\{\s*(tffile|codefile|\.)\b[^}]*\}\}")
+          problems = []
+          for doc in docs:
+              text = doc.read_text()
+              for m in directive.finditer(text):
+                  line = text[: m.start()].count("\n") + 1
+                  problems.append(f"{doc}:{line}: unexpanded directive {m.group(0)!r}")
+
+          # A page can also reference an example that no longer exists, which
+          # would publish an empty Example Usage section on the next release.
+          ref = re.compile(r'\{\{\s*tffile\s+"([^"]+)"\s*\}\}')
+          for doc in docs:
+              for m in ref.finditer(doc.read_text()):
+                  if not pathlib.Path(m.group(1)).is_file():
+                      problems.append(f"{doc}: references missing example {m.group(1)}")
+
+          if problems:
+              print("These would be published to the Terraform Registry as written:\n")
+              for p in problems:
+                  print("  " + p)
+              print(
+                  "\nInline the referenced file's contents instead. docs/ is "
+                  "hand-maintained here — there is no templates/ directory and "
+                  "nothing expands these directives."
+              )
+              sys.exit(1)
+
+          print(f"{len(docs)} documentation pages checked, no unexpanded directives")
+          PY
